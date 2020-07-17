@@ -1,0 +1,36 @@
+.graph_container{
+    border-radius: 3px;
+    background-color: white ;
+    margin: 5px;
+    padding: 5px;
+    position: relative;
+    font-family: "VIC-regular";
+    border-left: 1px solid lightgray !important;
+    border-right: 1px solid lightgray !important;
+    border-bottom: 1px solid lightgray !important;
+    border-top: 1px solid lightgray !important;
+}
+
+.text_container{
+    border-radius: 3px;
+    background-color: white;
+    margin: 5px;
+    padding: 15px;
+    position: relative;
+    font-family: "VIC-regular";
+    border-left: 1px solid lightgray !important;
+    border-right: 1px solid lightgray !important;
+    border-bottom: 1px solid lightgray !important;
+    border-top: 1px solid lightgray !important;
+}
+
+.radioitems_label{
+    padding: 15px;
+    color :#222;
+    font-family: 'VIC-regular';
+    font-size: 14px;
+    margin: 10px 10px 10px 10px;
+    vertical-align: top !important;
+    align-items: center !important;
+    justify-content: center !important;
+}​
