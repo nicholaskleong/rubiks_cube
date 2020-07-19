@@ -8,3 +8,7 @@ def register_callbacks(app):
     def update_cube(theta):
         theta = theta*(math.pi/180)
         return cube_graph(theta)
+    @app.callback(Output('rubiks', 'figure'),
+                [Input('none', 'children')])
+    def update_rubiks(_):
+        return plot_rubiks()
