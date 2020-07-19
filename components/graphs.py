@@ -46,6 +46,10 @@ class Block():
     self.color = color
     self.centre = np.array(self.points).mean(axis=0)
 
+  def get_state(self):
+    state = [[point for point in self.points], self.color]
+    return state
+
   def rotate(self, q):
     self.points = [rotate_point(point, q) for point in self.points]
 
@@ -57,6 +61,13 @@ class Rubik():
   def __init__(self, blocks):
     self.blocks = blocks
 
+  def get_state(self):
+    state = [block.get_state() for block in self.blocks]
+    return state
+
+  def load_state(self, state):
+    self.blocks = [Block(*block) for block in state]
+
   def rotate(self, q):
     [block.rotate(q) for block in self.blocks]
 
@@ -67,37 +78,37 @@ class Rubik():
   def rotate_left(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([1, 0, 0], theta)
-    for block in [R.blocks[i] for i in np.where(R.get_centres()[:, 0] < -0.9)[0]]:
+    for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 0] < -0.9)[0]]:
       block.rotate(q)
 
   def rotate_right(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([-1, 0, 0], theta)
-    for block in [R.blocks[i] for i in np.where(R.get_centres()[:, 0] > 0.9)[0]]:
+    for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 0] > 0.9)[0]]:
       block.rotate(q)
 
   def rotate_back(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([0, 1, 0], theta)
-    for block in [R.blocks[i] for i in np.where(R.get_centres()[:, 1] > 0.9)[0]]:
+    for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 1] > 0.9)[0]]:
       block.rotate(q)
 
   def rotate_front(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([0, -1, 0], theta)
-    for block in [R.blocks[i] for i in np.where(R.get_centres()[:, 1] < -0.9)[0]]:
+    for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 1] < -0.9)[0]]:
       block.rotate(q)
 
   def rotate_bottom(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([0, 0, 1], theta)
-    for block in [R.blocks[i] for i in np.where(R.get_centres()[:, 2] > 0.9)[0]]:
+    for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 2] > 0.9)[0]]:
       block.rotate(q)
 
   def rotate_top(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([0, 0, -1], theta)
-    for block in [R.blocks[i] for i in np.where(R.get_centres()[:, 2] < -0.9)[0]]:
+    for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 2] < -0.9)[0]]:
       block.rotate(q)
 
   def plot(self):
@@ -113,6 +124,8 @@ class Rubik():
         yaxis=axis_params,
         zaxis=axis_params,))
     return fig
+
+    
 def shape_trace(shape):
     x = [tup[0] for tup in shape]
     y = [tup[1] for tup in shape]
@@ -163,11 +176,17 @@ def cube_graph(theta):
     fig = plot_faces(cube_rotated)
     return fig
 
-def plot_rubiks():
-    faces = [rotate_shape(cube_faces, q) for q in qs]+[cube_faces, cube_faces1]
+def init_rubiks():
+    faces = [rotate_shape(cube_faces, q)
+                              for q in qs]+[cube_faces, cube_faces1]
     colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
     R = Rubik([Block(block, color) for color, cube_faces in zip(
         colors, faces) for block in cube_faces])
     R.rotate(get_q([1, 1, 1], 0.01))
+    return R
+
+def plot_rubiks(state):
+    R = Rubik(None)
+    R.load_state(state)
     fig = R.plot()
     return fig

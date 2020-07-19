@@ -3,6 +3,7 @@ import dash_html_components as html
 
 body_layout = html.Div([
     html.H2('Rubiks'),
+    dcc.Store(id='memory'),
     html.Div(
         className='graph_container five columns',
         children=[
