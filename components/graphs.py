@@ -174,4 +174,5 @@ def plot_rubiks(state):
     R = Rubik(None)
     R.load_state(state)
     fig = R.plot()
+    fig.update_layout(width=800,height=600)
     return fig
