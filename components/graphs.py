@@ -77,13 +77,13 @@ class Rubik():
 
   def rotate_left(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
-    q = get_q([1, 0, 0], theta)
+    q = get_q([-1, 0, 0], theta)
     for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 0] < -0.9)[0]]:
       block.rotate(q)
 
   def rotate_right(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
-    q = get_q([-1, 0, 0], theta)
+    q = get_q([1, 0, 0], theta)
     for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 0] > 0.9)[0]]:
       block.rotate(q)
 
@@ -99,13 +99,13 @@ class Rubik():
     for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 1] < -0.9)[0]]:
       block.rotate(q)
 
-  def rotate_bottom(self, clockwise=True):
+  def rotate_down(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([0, 0, 1], theta)
     for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 2] > 0.9)[0]]:
       block.rotate(q)
 
-  def rotate_top(self, clockwise=True):
+  def rotate_up(self, clockwise=True):
     theta = (1 if clockwise else -1) * math.pi/2
     q = get_q([0, 0, -1], theta)
     for block in [self.blocks[i] for i in np.where(self.get_centres()[:, 2] < -0.9)[0]]:
@@ -146,11 +146,6 @@ def plot_faces(faces):
                     width=500)
     return fig
 
-
-
-
-
-
 def face_3d(face, color='red'):
   x = [point[0] for point in face]
   y = [point[1] for point in face]
@@ -165,16 +160,6 @@ def face_3d(face, color='red'):
       hoverinfo='skip',
       mode='lines')
   return trace
-
-
-def cube_graph(theta):
-    axis = [1,1,1/2]
-    # theta = math.pi/3
-    q = get_q(axis,theta)
-    q = q.normalised
-    cube_rotated=rotate_shape(cube,q)
-    fig = plot_faces(cube_rotated)
-    return fig
 
 def init_rubiks():
     faces = [rotate_shape(cube_faces, q)
