@@ -9,28 +9,18 @@
     border-right: 1px solid lightgray !important;
     border-bottom: 1px solid lightgray !important;
     border-top: 1px solid lightgray !important;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.text_container{
-    border-radius: 3px;
-    background-color: white;
-    margin: 5px;
-    padding: 15px;
-    position: relative;
-    font-family: "VIC-regular";
-    border-left: 1px solid lightgray !important;
-    border-right: 1px solid lightgray !important;
-    border-bottom: 1px solid lightgray !important;
-    border-top: 1px solid lightgray !important;
+.button {
+  background-color: #008CBA; /* Green */
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }
-
-.radioitems_label{
-    padding: 15px;
-    color :#222;
-    font-family: 'VIC-regular';
-    font-size: 14px;
-    margin: 10px 10px 10px 10px;
-    vertical-align: top !important;
-    align-items: center !important;
-    justify-content: center !important;
-}​

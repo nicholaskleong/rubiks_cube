@@ -5,42 +5,40 @@ from pyquaternion import Quaternion
 
 
 def get_q(axis, theta):
-    q = Quaternion([math.cos(theta/2)] + [math.sin(theta/2) * x for x in axis])
-    return q
+  '''Get quaternion that represents rotation'''
+  q = Quaternion([math.cos(theta/2)] + [math.sin(theta/2) * x for x in axis])
+  return q
 def rotate_point(point, q):
+  '''Rotate a single 3D point by quaternion q'''
   point_q = Quaternion([0]+list(point))
   rotated_q = q*point_q*q.conjugate
   return [rotated_q[i] for i in [1, 2, 3]]
 def rotate_face(face, q):
-    return [rotate_point(point, q) for point in face]
+  '''Rotate a face by q'''
+  return [rotate_point(point, q) for point in face]
 def rotate_shape(faces, q):
-    return [rotate_face(face, q) for face in faces]
-
-cube = [[[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]],
-        [[1, -1, -1], [1, -1, 1], [1, 1, 1], [1, 1, -1]],
-        [[-1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, -1, -1]],
-        [[-1, 1, -1], [-1, 1, 1], [1, 1, 1], [1, 1, -1]],
-        [[-1, -1, -1], [-1, 1, -1], [1, 1, -1], [1, -1, -1]],
-        [[-1, -1, 1], [-1, 1, 1], [1, 1, 1], [1, -1, 1]]]
-
-delta = 0.05
-centre_block = [np.array([-0.5, -0.5, 1.5+delta]), np.array([-0.5, 0.5, 1.5+delta]),
-                np.array([0.5, 0.5, 1.5+delta]), np.array([0.5, -0.5, 1.5+delta])]
-x = 1 + delta
-translations = [np.array([0, 0, 0]), np.array([x, 0, 0]), np.array([-x, 0, 0]),
-                np.array([0, x, 0]), np.array([x, x, 0]), np.array([-x, x, 0]),
-                np.array([0, -x, 0]), np.array([x, -x, 0]
-                                               ), np.array([-x, -x, 0])
-                ]
-cube_faces = [[point + x for point in centre_block] for x in translations]
-cube_faces1 = [[point-np.array([0, 0, 3+2*delta])
-                for point in block] for block in cube_faces]
-qs = [get_q(axis, math.pi/2)
-      for axis in [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0]]]
-rubik = [rotate_shape(cube_faces, q) for q in qs]+[cube_faces, cube_faces1]
+  '''rotate a shape (list of faces) by q'''
+  return [rotate_face(face, q) for face in faces]
 
 
+
+def get_sticker_background(color='black'):
+  '''Get a trace that provided black background'''
+  qs = [get_q(axis, math.pi/2)
+    for axis in [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0]]]
+  eps = 0.01
+  sticker_background = [np.array([1.5-eps, 1.5-eps, 1.5-eps]),
+                        np.array([1.5-eps, -1.5+eps, 1.5-eps]),
+                        np.array([-1.5+eps, 1.5-eps, 1.5-eps]),
+                        np.array([-1.5+eps, -1.5+eps, 1.5-eps])]
+  sticker_background1 = [
+      point-np.array([0, 0, 3-2*eps]) for point in sticker_background]
+  sticker_background_full = [rotate_face(
+      sticker_background, q) for q in qs]+[sticker_background, sticker_background1]
+  q=get_q([1, 1, 1], 0.0001)
+  return [face_3d(rotate_face(face, q), color) for face in sticker_background_full]
 class Block():
+  '''Class for single sticker. 9 stickers to a face'''
   def __init__(self, points, color):
     self.points = points
     self.color = color
@@ -115,6 +113,7 @@ class Rubik():
     fig = go.Figure()
     [fig.add_trace(block.trace()) for block in self.blocks]
     lim = -3
+    [fig.add_trace(trace) for trace in get_sticker_background()]
     axis_params = dict(range=[-lim, lim],
                        showbackground=False,
                        showticklabels=False,
@@ -122,31 +121,15 @@ class Rubik():
     fig.update_layout(scene=dict(
         xaxis=axis_params,
         yaxis=axis_params,
-        zaxis=axis_params,))
+        zaxis=axis_params,
+        camera=dict(
+            eye=dict(x=0.8, y=0.8, z=0.8)
+        )))
     return fig
 
-    
-def shape_trace(shape):
-    x = [tup[0] for tup in shape]
-    y = [tup[1] for tup in shape]
-    return go.Scatter(x=x+[x[0]],
-                            y=y+[y[0]],
-                            fill="toself",
-                            visible=True,
-                            showlegend=False,)
-
-def plot_faces(faces):
-    lim = 2.5
-    fig = go.Figure()
-    for face in faces:
-        fig.add_trace(shape_trace(face))
-    fig.update_layout(xaxis_range = (-lim,lim),
-                    yaxis_range = (-lim,lim),
-                    height=500,
-                    width=500)
-    return fig
 
 def face_3d(face, color='red'):
+  '''Plot face as trace in 3D scatter'''
   x = [point[0] for point in face]
   y = [point[1] for point in face]
   z = [point[2] for point in face]
@@ -162,17 +145,45 @@ def face_3d(face, color='red'):
   return trace
 
 def init_rubiks():
+    '''Create list of blocks and rotate to get full rubiks cube'''
+    cube = [[[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]],
+            [[1, -1, -1], [1, -1, 1], [1, 1, 1], [1, 1, -1]],
+            [[-1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, -1, -1]],
+            [[-1, 1, -1], [-1, 1, 1], [1, 1, 1], [1, 1, -1]],
+            [[-1, -1, -1], [-1, 1, -1], [1, 1, -1], [1, -1, -1]],
+            [[-1, -1, 1], [-1, 1, 1], [1, 1, 1], [1, -1, 1]]]
+
+    delta = 0.05
+    centre_block = [np.array([-0.5, -0.5, 1.5+delta]), np.array([-0.5, 0.5, 1.5+delta]),
+                    np.array([0.5, 0.5, 1.5+delta]), np.array([0.5, -0.5, 1.5+delta])]
+    x = 1 + delta
+    translations = [np.array([0, 0, 0]), np.array([x, 0, 0]), np.array([-x, 0, 0]),
+                    np.array([0, x, 0]), np.array([x, x, 0]), np.array([-x, x, 0]),
+                    np.array([0, -x, 0]), np.array([x, -x, 0]
+                                                  ), np.array([-x, -x, 0])
+                    ]
+    cube_faces = [[point + x for point in centre_block] for x in translations]
+    cube_faces1 = [[point-np.array([0, 0, 3+2*delta])
+                    for point in block] for block in cube_faces]
+    qs = [get_q(axis, math.pi/2)
+          for axis in [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0]]]
+    rubik = [rotate_shape(cube_faces, q) for q in qs]+[cube_faces, cube_faces1]
     faces = [rotate_shape(cube_faces, q)
                               for q in qs]+[cube_faces, cube_faces1]
     colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
     R = Rubik([Block(block, color) for color, cube_faces in zip(
         colors, faces) for block in cube_faces])
-    R.rotate(get_q([1, 1, 1], 0.01))
+    R.rotate(get_q([1, 1, 1], 0.0001))
     return R
 
 def plot_rubiks(state):
+    '''Update plot to the configuration of state.'''
     R = Rubik(None)
     R.load_state(state)
     fig = R.plot()
-    fig.update_layout(width=800,height=600)
+    fig.update_layout(
+      width=800,
+      height=600,
+      uirevision='fixed',
+    )
     return fig
