@@ -8,7 +8,7 @@ from layout.body import body_layout
 from callbacks.callbacks import register_callbacks
 app = dash.Dash(__name__)
 
-# server = app.server
+server = app.server
 
 app.layout = body_layout
 
